@@ -9,7 +9,6 @@ pipeline {
     stage('package') {
       steps {
         sh '''pwd
-docker-compose run package
 make build-docker-prod-image
 docker push localhost:5000/java_sample_prod'''
       }
