@@ -13,7 +13,7 @@ pipeline {
     }
     stage('package') {
       steps {
-        sh 'docker-compose run package'
+        sh 'docker-compose run --rm package'
       }
     }
     stage('archive') {
