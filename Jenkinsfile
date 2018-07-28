@@ -11,23 +11,9 @@ pipeline {
         sh 'mvn clean cobertura:cobertura test'
       }
     }
-    stage('report test') {
-      parallel {
-        stage('report test') {
-          steps {
-            junit 'target/surefire-reports/*.xml'
-          }
-        }
-        stage('cobertura reprot') {
-          steps {
-            cobertura(coberturaReportFile: 'target/site/cobertura/coverage.xml')
-          }
-        }
-      }
-    }
     stage('package') {
       steps {
-        sh 'mvn clean package'
+        sh 'docker-compose run package'
       }
     }
     stage('archive') {
@@ -37,7 +23,10 @@ pipeline {
     }
     stage('deploy') {
       steps {
-        sh 'make deploy-default'
+        sh '''make build-docker-prod-image
+docker push localhost:5000/java_sample_prod
+make deploy-production-ssh
+'''
       }
     }
   }
