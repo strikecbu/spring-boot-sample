@@ -6,16 +6,38 @@ pipeline {
         checkout scm
       }
     }
+    stage('test') {
+      steps {
+        sh 'mvn clean cobertura:cobertura test'
+      }
+    }
+    stage('report test') {
+      parallel {
+        stage('report test') {
+          steps {
+            junit 'target/surefire-reports/*.xml'
+          }
+        }
+        stage('cobertura reprot') {
+          steps {
+            cobertura(coberturaReportFile: 'target/site/cobertura/coverage.xml')
+          }
+        }
+      }
+    }
     stage('package') {
       steps {
-        sh '''pwd
-make build-docker-prod-image
-docker push localhost:5000/java_sample_prod'''
+        sh 'mvn clean package'
+      }
+    }
+    stage('archive') {
+      steps {
+        archiveArtifacts 'target/spring-boot-sample-data-rest-0.1.0.jar'
       }
     }
     stage('deploy') {
       steps {
-        sh 'make deploy-production-ssh'
+        sh 'make deploy-default'
       }
     }
   }
